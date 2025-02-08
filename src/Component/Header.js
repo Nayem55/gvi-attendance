@@ -43,7 +43,6 @@ const Header = () => {
           </button>
         </div>
       </div>
-
       {/* Sidebar */}
       <div
         className={`fixed top-0 w-[80vw] sm:w-[30vw] left-0 h-full bg-[#ffffff] shadow-lg transform ${

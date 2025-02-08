@@ -57,17 +57,17 @@ const LoginForm = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-md shadow-lg mx-6">
-        <h2 className="text-2xl font-bold mb-6 text-center text-[#F16F24]">
+        <h2 className="text-2xl font-bold mb-6 text-center text-[#002B54]">
           Attendance System
         </h2>
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <input
-              type="number"
+              type="text"
               name="number"
               value={formData.number}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F16F24]"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002B54]"
               placeholder="Enter your number"
               required
             />
@@ -79,7 +79,7 @@ const LoginForm = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#F16F24]"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002B54]"
               placeholder="Enter your password"
               required
             />
@@ -88,7 +88,7 @@ const LoginForm = () => {
           <div>
             <button
               type="submit"
-              className="w-full py-3 bg-[#F16F24] text-white font-semibold rounded-md hover:bg-black focus:outline-none focus:ring-2 focus:ring-[#F16F24]"
+              className="w-full py-3 bg-[#002B54] text-white font-semibold rounded-md hover:bg-black focus:outline-none focus:ring-2 focus:ring-[#002B54]"
               disabled={isLoading}
             >
               {isLoading ? "Logging In..." : "Login"}
@@ -100,7 +100,7 @@ const LoginForm = () => {
           <span className="text-sm text-gray-500">Don't have an account? </span>
           <a
             href="/signup"
-            className="text-sm text-[#F16F24] hover:black"
+            className="text-sm text-[#002B54] hover:black"
           >
             Sign up
           </a>

@@ -116,7 +116,7 @@ const CheckInPage = () => {
 
       try {
         const response = await axios.post(
-          "https://api.imgbb.com/1/upload?expiration=604800&key=293a0c42ccc6a11a4d90a9b7974dbb60",
+          "https://api.imgbb.com/1/upload?expiration=172800&key=293a0c42ccc6a11a4d90a9b7974dbb60",
           formData
         );
         const imageUrl = response.data.data.url;
