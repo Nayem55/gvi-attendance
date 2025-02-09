@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import dayjs from "dayjs";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx"; // Import the xlsx library
 
 const AdminDashboard = () => {
   const [reports, setReports] = useState([]);
   const [group, setGroup] = useState("NMT");
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState(dayjs().format("YYYY-MM"));
-  const [selectedRole, setSelectedRole] = useState("MR"); // Default to 'office'
+  const [selectedRole, setSelectedRole] = useState("MR");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [error, setError] = useState(null);
   const [totalWorkingDays, setTotalWorkingDays] = useState(null);
@@ -30,7 +31,7 @@ const AdminDashboard = () => {
       selectedRole,
       storedUser.group || (selectedRole === "super admin" ? "" : group),
       storedUser.zone
-    ); // Add role to the dependency
+    );
     fetchPendingRequest();
   }, [selectedMonth, selectedRole, group]);
 
@@ -86,11 +87,10 @@ const AdminDashboard = () => {
     setError(null);
     try {
       const [year, monthNumber] = month.split("-");
-      // Fetch users filtered by role from the backend
       const usersResponse = await axios.get(
         `https://attendance-app-server-blue.vercel.app/getAllUser`,
         {
-          params: { role, group, zone }, // Include group and zone as query parameters
+          params: { role, group, zone },
         }
       );
       const users = usersResponse.data;
@@ -114,7 +114,6 @@ const AdminDashboard = () => {
           const checkOuts = checkOutsResponse.data;
           const totalCheckIns = checkIns.length;
 
-          // Late check-ins calculation (after 10:15 AM)
           const lateCheckInsCount = checkIns.filter(
             (checkin) => checkin.status === "Late"
           ).length;
@@ -122,7 +121,6 @@ const AdminDashboard = () => {
             (checkin) => checkin.status === "Overtime"
           ).length;
 
-          // Fetch approved leave days for the user in the selected month
           const approvedLeaveDays = await fetchApprovedLeaves(
             user._id,
             monthNumber,
@@ -161,6 +159,43 @@ const AdminDashboard = () => {
     setSelectedRole(event.target.value);
   };
 
+  // Function to export the report to Excel
+  const exportToExcel = () => {
+    const worksheetData = reports.map((report) => ({
+      Name: report.username,
+      Number: report.number,
+      Role: report.role,
+      Zone: report.zone,
+      "Total Working Days": totalWorkingDays,
+      Holidays:
+        dayCount -
+        totalWorkingDays -
+        (report.totalCheckIns - totalWorkingDays > 0
+          ? report.totalCheckIns - totalWorkingDays
+          : 0),
+      "Approved Leave": report.approvedLeaves,
+      Absent:
+        totalWorkingDays - report.totalCheckIns - report.approvedLeaves > 0
+          ? totalWorkingDays - report.totalCheckIns - report.approvedLeaves
+          : 0,
+      "Extra Day":
+        report.totalCheckIns - totalWorkingDays > 0
+          ? report.totalCheckIns - totalWorkingDays
+          : 0,
+      "Total Check-Ins": report.totalCheckIns,
+      "Late Check-Ins (10.15 AM)": report.lateCheckIns,
+      "Late Check-Outs (8.00 PM)": report.lateCheckOuts,
+      "Late Adjustment": report.lateCheckIns - report.lateCheckOuts,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly Report");
+
+    // Generate Excel file and trigger download
+    XLSX.writeFile(workbook, `Monthly_Report_${selectedMonth}.xlsx`);
+  };
+
   return (
     <div className="flex">
       {/* Side Drawer */}
@@ -180,31 +215,28 @@ const AdminDashboard = () => {
         </div>
         <nav className="flex flex-col p-4 space-y-2">
           <Link
-            to="/admin"
-            className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
-          >
-            Attendance Report
-          </Link>
-          <Link
             to="/admin/today-report"
             className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
           >
             Today's Report
           </Link>
           <Link
-            to="/admin/holiday-management"
+            to="/admin/monthly-summary"
             className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
           >
-            Holiday
+            Monthly Summary
+          </Link>
+          <Link
+            to="/admin/monthly-details"
+            className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
+          >
+            Monthly Details
           </Link>
           <Link
             to="/admin/applications"
-            className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700 flex items-center"
+            className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
           >
-            Leave Requests{" "}
-            <span className="ml-2 font-bold text-[#F16F24]">
-              {pendingReq > 0 && pendingReq}
-            </span>
+            Leave Requests
           </Link>
           <Link
             to="/admin/user"
@@ -225,6 +257,15 @@ const AdminDashboard = () => {
         </button>
 
         <h1 className="text-xl font-bold mb-4">Monthly Attendance Report</h1>
+
+        {/* Export Button */}
+        <button
+          onClick={exportToExcel}
+          className="mb-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        >
+          Export Report
+        </button>
+
         <div className="mb-4 flex items-center space-x-4">
           <div>
             <label className="mr-2 font-semibold">Select Month:</label>
@@ -289,7 +330,6 @@ const AdminDashboard = () => {
               <thead>
                 <tr className="bg-gray-200">
                   <th className="border border-gray-300 px-4 py-2">Username</th>
-                  {/* <th className="border border-gray-300 px-4 py-2">Phone</th> */}
                   <th className="border border-gray-300 px-4 py-2">Role</th>
                   <th className="border border-gray-300 px-4 py-2">Zone</th>
                   <th className="border border-gray-300 px-4 py-2">
@@ -314,11 +354,9 @@ const AdminDashboard = () => {
                   <th className="border border-gray-300 px-4 py-2 bg-[#0B6222] text-white">
                     Late Check-Outs (8.00 PM)
                   </th>
-
                   <th className="border border-gray-300 px-4 py-2">
                     Late Adjustment
                   </th>
-
                   <th className="border border-gray-300 px-4 py-2">
                     Daily Report
                   </th>
@@ -330,9 +368,6 @@ const AdminDashboard = () => {
                     <td className="border border-gray-300 px-4 py-2">
                       {report.username}
                     </td>
-                    {/* <td className="border border-gray-300 px-4 py-2">
-                      {report.number}
-                    </td> */}
                     <td className="border border-gray-300 px-4 py-2">
                       {report?.role}
                     </td>
@@ -352,7 +387,6 @@ const AdminDashboard = () => {
                     <td className="border border-gray-300 px-4 py-2">
                       {report.approvedLeaves}
                     </td>
-                    {/* absent */}
                     <td className="border border-gray-300  bg-red-300 px-4 py-2">
                       {totalWorkingDays -
                         report.totalCheckIns -
@@ -363,7 +397,6 @@ const AdminDashboard = () => {
                           report.approvedLeaves
                         : 0}
                     </td>
-                    {/* extra */}
                     <td className="border border-gray-300 bg-[#9BB97F] px-4 py-2">
                       {report.totalCheckIns - totalWorkingDays > 0
                         ? report.totalCheckIns - totalWorkingDays
@@ -375,7 +408,6 @@ const AdminDashboard = () => {
                     <td className="border border-gray-300 bg-red-300 px-4 py-2">
                       {report.lateCheckIns}
                     </td>
-
                     <td className="border border-gray-300 bg-[#9BB97F]  px-4 py-2">
                       {report.lateCheckOuts}
                     </td>

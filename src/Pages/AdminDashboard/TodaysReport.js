@@ -11,6 +11,7 @@ const TodaysReport = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [updatedStatuses, setUpdatedStatuses] = useState({});
+  const [group, setGroup] = useState("NMT");
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format("YYYY-MM-DD")
   );
@@ -25,8 +26,13 @@ const TodaysReport = () => {
   }, []);
 
   useEffect(() => {
-    fetchReports(selectedDate, selectedRole, storedUser.group, storedUser.zone);
-  }, [selectedDate, selectedRole]);
+    fetchReports(
+      selectedDate,
+      selectedRole,
+      storedUser.group || (selectedRole === "super admin" ? "" : group),
+      storedUser.zone
+    );
+  }, [selectedDate, selectedRole, group]);
 
   const fetchReports = async (date, role, group, zone) => {
     setLoading(true);
@@ -78,6 +84,7 @@ const TodaysReport = () => {
           return {
             username: user.name,
             number: user.number,
+            zone: user.zone || "",
             checkInTime: latestCheckIn
               ? dayjs(latestCheckIn.time).format("hh:mm A")
               : "N/A",
@@ -165,22 +172,22 @@ const TodaysReport = () => {
         </div>
         <nav className="flex flex-col p-4 space-y-2">
           <Link
-            to="/admin"
-            className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
-          >
-            Attendance Report
-          </Link>
-          <Link
             to="/admin/today-report"
             className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
           >
             Today's Report
           </Link>
           <Link
-            to="/admin/holiday-management"
+            to="/admin/monthly-summary"
             className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
           >
-            Holiday
+            Monthly Summary
+          </Link>
+          <Link
+            to="/admin/monthly-details"
+            className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700"
+          >
+            Monthly Details
           </Link>
           <Link
             to="/admin/applications"
@@ -221,6 +228,21 @@ const TodaysReport = () => {
             />
           </div>
 
+          {storedUser?.role === "super admin" && (
+              <div className="mb-4 w-[100%]">
+                <label className="block text-gray-700 font-bold mb-2">Filter by Group:</label>
+                <select
+                  value={group}
+                  onChange={(e) => setGroup(e.target.value)}
+                  className="border rounded px-2 py-1"
+                >
+                  <option value="NMT">NMT</option>
+                  <option value="AMD">AMD</option>
+                  <option value="GVI">GVI</option>
+                </select>
+              </div>
+            )}
+
           <div className="mb-4 w-[100%]">
             <label className="block text-gray-700 font-bold mb-2">
               Select Role:
@@ -239,12 +261,14 @@ const TodaysReport = () => {
               {(storedUser?.role === "super admin" ||
                 storedUser?.role === "RSM") && <option value="RSM">RSM</option>}
 
-              {(storedUser?.role === "super admin" || storedUser?.role === "RSM" ||
+              {(storedUser?.role === "super admin" ||
+                storedUser?.role === "RSM" ||
                 storedUser?.role === "TSO") && <option value="TSO">TSO</option>}
 
-              {(storedUser?.role === "super admin" || storedUser?.role === "RSM" ||
+              {(storedUser?.role === "super admin" ||
+                storedUser?.role === "RSM" ||
                 storedUser?.role === "ASM") && <option value="ASM">ASM</option>}
-                
+
               <option value="MR">MR</option>
             </select>
           </div>
@@ -261,6 +285,7 @@ const TodaysReport = () => {
                 <tr className="bg-gray-200">
                   <th className="border border-gray-300 px-4 py-2">Username</th>
                   <th className="border border-gray-300 px-4 py-2">Phone</th>
+                  <th className="border border-gray-300 px-4 py-2">Zone</th>
                   <th className="border border-gray-300 px-4 py-2">
                     Check-in Time
                   </th>
@@ -302,6 +327,9 @@ const TodaysReport = () => {
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
                       {report.number}
+                    </td>
+                    <td className="border border-gray-300 px-4 py-2">
+                      {report.zone}
                     </td>
                     <td className="border border-gray-300 px-4 py-2">
                       {report?.status !== "Absent" && report.checkInTime}
