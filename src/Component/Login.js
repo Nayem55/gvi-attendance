@@ -68,7 +68,7 @@ const LoginForm = () => {
               value={formData.number}
               onChange={handleChange}
               className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#002B54]"
-              placeholder="Enter your number"
+              placeholder="Enter your username"
               required
             />
           </div>
