@@ -57,8 +57,10 @@ const ViewReport = () => {
       // Combine check-ins and check-outs based on date
       const combinedRecords = checkIns.map((checkIn) => {
         const checkOut = checkOuts.find((co) =>
-          dayjs(co.time).isSame(checkIn.time, "day")
+            dayjs(co.time).isSame(checkIn.time, "day") && 
+            dayjs(co.time).isAfter(checkIn.time) // Ensure check-out time is after check-in time
         );
+        
         return {
           checkInId: checkIn._id,
           date: dayjs(checkIn?.time).format("DD MMMM YYYY"),
@@ -66,7 +68,7 @@ const ViewReport = () => {
           checkInLocation: checkIn?.location,
           checkOutLocation: checkOut?.location,
           checkInNote: checkIn?.note || "N/A",
-          checkOutTime: dayjs(checkOut?.time).format("hh:mm A") || "N/A",
+          checkOutTime: checkOut?.time ? dayjs(checkOut?.time).format("hh:mm A") : "N/A",
           checkOutNote: checkOut?.note || "N/A",
           status: checkIn.status,
         };

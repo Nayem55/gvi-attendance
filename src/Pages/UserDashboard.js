@@ -47,7 +47,7 @@ const UserDashboard = () => {
       );
       const checkIns = checkInsResponse.data;
 
-      const Late = checkIns.filter((checkin)=>checkin.status==="Late")
+      const Late = checkIns.filter((checkin) => checkin.status === "Late");
 
       // Fetch check-outs
       const checkOutsResponse = await axios.get(
@@ -57,19 +57,24 @@ const UserDashboard = () => {
         }
       );
       const checkOuts = checkOutsResponse.data;
-      const lateCheckOutsCount = checkOuts.filter((checkin) => checkin.status==="Overtime").length;
-      setLateCheckIn(Late.length-lateCheckOutsCount)
-
+      const lateCheckOutsCount = checkOuts.filter(
+        (checkin) => checkin.status === "Overtime"
+      ).length;
+      setLateCheckIn(Late.length - lateCheckOutsCount);
 
       // Combine check-ins and check-outs based on date
       const combinedRecords = checkIns.map((checkIn) => {
-        const checkOut = checkOuts.find((co) =>
-          dayjs(co.time).isSame(checkIn.time, "day")
+        const checkOut = checkOuts.find(
+          (co) =>
+            dayjs(co.time).isSame(checkIn.time, "day") &&
+            dayjs(co.time).isAfter(checkIn.time) // Ensure check-out time is after check-in time
         );
         return {
           date: dayjs(checkIn?.time).format("DD MMMM YYYY"),
           checkInTime: dayjs(checkIn?.time).format("hh:mm A") || "N/A",
-          checkOutTime: dayjs(checkOut?.time).format("hh:mm A") || "N/A",
+          checkOutTime: checkOut?.time
+            ? dayjs(checkOut?.time).format("hh:mm A")
+            : "N/A",
           status: checkIn.status,
         };
       });
@@ -143,9 +148,18 @@ const UserDashboard = () => {
         ) : records.length > 0 ? (
           <div className="overflow-x-auto w-[95vw] my-10 mb-[80px]">
             <div className="mb-10">
-              <p>Total Working Days : <span className="font-bold">{totalWorkingDays}</span></p>
-              <p>Total Check In : <span className="font-bold">{records.length}</span></p>
-              <p>Late Check In : <span className="font-bold text-[#E60611]">{lateCheckIn}</span></p>
+              <p>
+                Total Working Days :{" "}
+                <span className="font-bold">{totalWorkingDays}</span>
+              </p>
+              <p>
+                Total Check In :{" "}
+                <span className="font-bold">{records.length}</span>
+              </p>
+              <p>
+                Late Check In :{" "}
+                <span className="font-bold text-[#E60611]">{lateCheckIn}</span>
+              </p>
               <p>
                 Approved Leave :{" "}
                 <span className="font-bold">{approvedLeave}</span>

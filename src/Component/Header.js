@@ -134,7 +134,7 @@ const Header = () => {
 
             <p className="font-bold">Dashboard</p>
           </Link>
-          {(user?.role !== "MR" || user?.role !== "office") && (
+          {(user?.role !== "MR") && (
             <Link
               to={"/admin"}
               className="block py-2 px-4 text-gray-700 hover:bg-gray-100 rounded-md flex gap-4 items-center"
