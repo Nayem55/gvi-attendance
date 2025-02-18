@@ -14,6 +14,7 @@ import HistoryPage from "../Pages/HistoryPage";
 import ApplicationsPage from "../Pages/AdminDashboard/ApplicationsPage";
 import UserDashboard from "../Pages/UserDashboard";
 import UserManagementPage from "../Pages/AdminDashboard/Users";
+import DetailedSummary from "../Pages/AdminDashboard/DetailedSummary";
 
 const router = createBrowserRouter([
   {
@@ -62,6 +63,10 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin",
+        element: <TodaysReport/>,
+      },
+      {
+        path: "/admin/monthly-summary",
         element: <AdminDashboard/>,
       },
       {
@@ -73,8 +78,8 @@ const router = createBrowserRouter([
         element: <ViewReport/>,
       },
       {
-        path: "/admin/holiday-management",
-        element: <HolidayManagement/>,
+        path: "/admin/monthly-details",
+        element: <DetailedSummary/>,
       },
       {
         path: "/admin/applications",
