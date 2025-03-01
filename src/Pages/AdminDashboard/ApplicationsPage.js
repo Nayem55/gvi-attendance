@@ -112,12 +112,14 @@ const ApplicationsPage = () => {
           >
             Leave Requests
           </Link>
-          <Link
-            to="/admin/user"
-            className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700 flex items-center"
-          >
-            Users
-          </Link>
+          {storedUser?.role === "super admin" && (
+            <Link
+              to="/admin/user"
+              className="px-4 py-2 rounded hover:bg-gray-700 focus:bg-gray-700 flex items-center"
+            >
+              Users
+            </Link>
+          )}
         </nav>
       </div>
 
