@@ -17,7 +17,7 @@ const CheckInPage = () => {
   const [loading, setLoading] = useState(false);
   const [captured, setCaptured] = useState(false);
   const [locationError, setLocationError] = useState("");
-  const [isLocationEnabled, setIsLocationEnabled] = useState(false);
+  const [isLocationEnabled, setIsLocationEnabled] = useState(true);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
@@ -37,37 +37,52 @@ const CheckInPage = () => {
   const fetchUserLocation = async () => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject("Geolocation is not supported by your browser.");
+        const errorMessage = "Geolocation is not supported by your browser.";
+        setLocationError(errorMessage);
+        reject(errorMessage);
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
+          // setIsLocationEnabled(true);
           resolve({ latitude, longitude });
-          setIsLocationEnabled(true); 
         },
-        (error) => {
+        async (error) => {
           let errorMessage = "An unknown error occurred.";
           switch (error.code) {
             case error.PERMISSION_DENIED:
               errorMessage =
                 "Location access denied. Please allow location permissions.";
-              setLocationError(errorMessage); // Set the error message
-              setIsLocationEnabled(false); // Set location as not enabled
               break;
             case error.POSITION_UNAVAILABLE:
               errorMessage = "Location information is unavailable.";
-              setLocationError(errorMessage); // Set the error message
-              setIsLocationEnabled(false); // Set location as not enabled
               break;
             case error.TIMEOUT:
               errorMessage = "Request timed out. Please try again.";
-              setLocationError(errorMessage); // Set the error message
-              setIsLocationEnabled(false); // Set location as not enabled
               break;
           }
-          reject(errorMessage);
+
+          setLocationError(errorMessage);
+          console.warn(errorMessage);
+
+          // **Fallback: Fetch location using IP-based Geolocation (ipinfo.io)**
+          try {
+            console.log("Fetching location from IPInfo.io...");
+            const res = await axios.get(
+              "https://ipinfo.io/json?token=6cc3a1d32d5129"
+            );
+            const [latitude, longitude] = res.data.loc.split(",");
+            resolve({ latitude, longitude });
+            // setIsLocationEnabled(true);
+          } catch (ipError) {
+            const fallbackError =
+              "Failed to retrieve location from both GPS and IP.";
+            // setIsLocationEnabled(false)
+            setLocationError(fallbackError);
+            reject(fallbackError);
+          }
         },
         {
           enableHighAccuracy: true,
@@ -80,7 +95,7 @@ const CheckInPage = () => {
 
   useEffect(() => {
     fetchCurrentTime();
-    fetchUserLocation();
+    // fetchUserLocation();
   }, []);
 
   useEffect(() => {
