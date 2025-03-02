@@ -153,10 +153,10 @@ const CheckInPage = () => {
   };
 
   const handleCheckIn = async () => {
-    if (!isLocationEnabled) {
-      toast.error("Location is required. Please enable location to check-in.");
-      return;
-    }
+    // if (!isLocationEnabled) {
+    //   toast.error("Location is required. Please enable location to check-in.");
+    //   return;
+    // }
 
     setLoading(true);
     const user = JSON.parse(localStorage.getItem("user"));
@@ -319,50 +319,46 @@ const CheckInPage = () => {
       <div className="text-center">
         {user && user?.checkIn ? (
           <button
-            className={`w-full text-white py-2 px-4 rounded-lg mt-2 ${
-              !isLocationEnabled ? "bg-[#cccccc]" : "bg-[#F16F24]"
-            }`}
+            className={`w-full text-white py-2 px-4 rounded-lg mt-2 bg-[#F16F24]`}
             onClick={handleCheckOut}
-            disabled={loading || !isLocationEnabled}
+            disabled={loading}
           >
-            {loading
-              ? "Please wait..."
-              : !isLocationEnabled
-              ? "Please turn on your location"
-              : "Check Out"}
+            {loading ? "Please wait..." : "Check Out"}
           </button>
         ) : (
           <button
-            className={`w-full text-white py-2 px-4 rounded-lg mt-2 ${
-              !isLocationEnabled ? "bg-[#cccccc]" : "bg-[#F16F24]"
-            }`}
+            className={`w-full text-white py-2 px-4 rounded-lg mt-2 bg-[#F16F24]`}
             onClick={handleCheckIn}
-            disabled={loading || !isLocationEnabled}
+            disabled={loading}
           >
-            {loading
-              ? "Please wait..."
-              : !isLocationEnabled
-              ? "Please turn on your location"
-              : "Check In"}
+            {loading ? "Please wait..." : "Check In"}
           </button>
         )}
-        {!isLocationEnabled && (
+        {/* {!isLocationEnabled && (
           <button
             onClick={() => {
               fetchUserLocation(); // Re-fetch user location
             }}
             className="mt-2 font-bold py-1 px-2 bg-[#F16F24] rounded"
           >
-            <svg className="w-7 h-7 p-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#ffffff" d="M463.5 224l8.5 0c13.3 0 24-10.7 24-24l0-128c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8l119.5 0z"/></svg>
+            <svg
+              className="w-7 h-7 p-1"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 512 512"
+            >
+              <path
+                fill="#ffffff"
+                d="M463.5 224l8.5 0c13.3 0 24-10.7 24-24l0-128c0-9.7-5.8-18.5-14.8-22.2s-19.3-1.7-26.2 5.2L413.4 96.6c-87.6-86.5-228.7-86.2-315.8 1c-87.5 87.5-87.5 229.3 0 316.8s229.3 87.5 316.8 0c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0c-62.5 62.5-163.8 62.5-226.3 0s-62.5-163.8 0-226.3c62.2-62.2 162.7-62.5 225.3-1L327 183c-6.9 6.9-8.9 17.2-5.2 26.2s12.5 14.8 22.2 14.8l119.5 0z"
+              />
+            </svg>
           </button>
-        )}
+        )} */}
       </div>
     </div>
   );
 };
 
 export default CheckInPage;
-
 
 // flormar
 // office

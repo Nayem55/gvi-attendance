@@ -18,9 +18,12 @@ const LeaveRequestPage = () => {
     setLoading(true);
 
     const leaveData = {
-      userName: user.name,
-      userId: user._id,
-      phoneNumber: user.number,
+      userName: user?.name,
+      group: user?.group || "",
+      zone: user?.zone || "",
+      role: user?.role || "",
+      userId: user?._id,
+      phoneNumber: user?.number,
       leaveStartDate,
       leaveEndDate: isMultipleDays ? leaveEndDate : leaveStartDate,
       leaveReason,
@@ -64,7 +67,7 @@ const LeaveRequestPage = () => {
         <h1 className="text-2xl font-bold mb-4">Request Leave</h1>
         <Link
           to="/leave-history"
-          className="text-sm bg-black hover:bg-[#F16F24] ease-in-out duration-200 text-[#ffffff] px-3 py-2 rounded font-bold mb-4"
+          className="text-sm bg-black hover:bg-[#002B54] ease-in-out duration-200 text-[#ffffff] px-3 py-2 rounded font-bold mb-4"
         >
           History
         </Link>
@@ -171,7 +174,7 @@ const LeaveRequestPage = () => {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full p-3 bg-[#F16F24] hover:bg-black ease-in-out duration-200 mb-10 text-white rounded ${
+          className={`w-full p-3 bg-[#002B54] hover:bg-black ease-in-out duration-200 mb-10 text-white rounded ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >

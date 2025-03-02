@@ -22,7 +22,21 @@ const ApplicationsPage = () => {
         const response = await axios.get(
           "https://attendance-app-server-blue.vercel.app/api/leave-requests"
         );
-        setApplications(response.data || []);
+        if (storedUser?.group && !storedUser?.zone) {
+          setApplications(
+            response.data.filter((data) => storedUser.group === data.group) ||
+              []
+          );
+        } else if (storedUser?.group && storedUser?.zone) {
+          setApplications(
+            response.data.filter(
+              (data) =>
+                storedUser.group === data.group && storedUser.zone === data.zone
+            ) || []
+          );
+        } else {
+          setApplications(response.data || []);
+        }
       } catch (error) {
         console.error("Error fetching leave applications:", error);
         toast.error(
