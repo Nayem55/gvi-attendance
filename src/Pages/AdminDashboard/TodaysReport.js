@@ -13,6 +13,7 @@ const TodaysReport = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [updatedStatuses, setUpdatedStatuses] = useState({});
   const [group, setGroup] = useState("NMT");
+  const [zone, setZone] = useState("");
   const [selectedDate, setSelectedDate] = useState(
     dayjs().format("YYYY-MM-DD")
   );
@@ -31,9 +32,9 @@ const TodaysReport = () => {
       selectedDate,
       selectedRole,
       storedUser.group || (selectedRole === "super admin" ? "" : group),
-      storedUser.zone
+      storedUser.zone || (selectedRole === "super admin" ? "" : zone),
     );
-  }, [selectedDate, selectedRole, group]);
+  }, [selectedDate, selectedRole, group,zone]);
 
   const fetchReports = async (date, role, group, zone) => {
     setLoading(true);
@@ -279,6 +280,28 @@ const TodaysReport = () => {
                 <option value="NMT">NMT</option>
                 <option value="AMD">AMD</option>
                 <option value="GVI">GVI</option>
+              </select>
+            </div>
+          )}
+
+          {(storedUser?.role === "super admin" || storedUser?.role === "RSM") && (
+            <div className="mb-4 w-[100%]">
+              <label className="block text-gray-700 font-bold mb-2">
+                Filter by Zone:
+              </label>
+              <select
+                value={zone}
+                onChange={(e) => setZone(e.target.value)}
+                className="border rounded px-2 py-1"
+              >
+                <option value="">Select Zone</option>
+                <option value="Gulshan">Gulshan</option>
+                <option value="Mirpur">Mirpur</option>
+                <option value="Dhanmondi">Dhanmondi</option>
+                <option value="Uttara">Uttara</option>
+                <option value="Chittagong">Chittagong</option>
+                <option value="Sylhet">Sylhet</option>
+                <option value="Old Town">Old Town</option>
               </select>
             </div>
           )}
