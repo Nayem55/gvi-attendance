@@ -184,7 +184,7 @@ const HomePage = () => {
             value={
               dataLoading
                 ? "Calculating..."
-                : `${lateCheckIns - lateCheckOuts} Days`
+                : `${lateCheckIns} Days`
             }
           />
           {/* <SummaryCard

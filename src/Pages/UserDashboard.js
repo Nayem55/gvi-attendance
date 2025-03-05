@@ -60,7 +60,7 @@ const UserDashboard = () => {
       const lateCheckOutsCount = checkOuts.filter(
         (checkin) => checkin.status === "Overtime"
       ).length;
-      setLateCheckIn(Late.length - lateCheckOutsCount);
+      setLateCheckIn(Late.length);
 
       // Combine check-ins and check-outs based on date
       const combinedRecords = checkIns.map((checkIn) => {
