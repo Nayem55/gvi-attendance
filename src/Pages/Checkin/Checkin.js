@@ -15,6 +15,7 @@ const CheckInPage = () => {
   const [image, setImage] = useState(null);
   const [time, setTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imgLoading, setImgLoading] = useState(false);
   const [captured, setCaptured] = useState(false);
   const [locationError, setLocationError] = useState("");
   const [isLocationEnabled, setIsLocationEnabled] = useState(true);
@@ -127,7 +128,7 @@ const CheckInPage = () => {
       const formData = new FormData();
       formData.append("image", blob, "capture.png");
 
-      setLoading(true);
+      setImgLoading(true);
 
       try {
         const response = await axios.post(
@@ -141,7 +142,7 @@ const CheckInPage = () => {
       } catch (error) {
         toast.error("Failed to upload image.");
       } finally {
-        setLoading(false);
+        setImgLoading(false);
       }
     }, "image/png");
   };
@@ -284,9 +285,9 @@ const CheckInPage = () => {
             )
           }
           className="w-full mt-4 bg-[#002B54] text-white py-2 rounded-lg"
-          disabled={loading} // Disable button while loading
+          disabled={imgLoading} // Disable button while loading
         >
-          {loading ? "Please wait..." : "Capture Image"}
+          {imgLoading ? "Please wait..." : "Capture Image"}
         </button>
         {image && <img src={image} alt="Captured Check-In" className="mt-2" />}
       </div>
