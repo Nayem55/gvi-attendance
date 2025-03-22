@@ -139,7 +139,7 @@ const CheckInPage = () => {
         setShowPreview(true);
         setImgLoading(false);
         toast.success("Upload successful!");
-      }, 10000);
+      }, 15000);
 
       try {
         const response = await axios.post(
@@ -292,8 +292,8 @@ const CheckInPage = () => {
           onClick={() =>
             handleCapture(
               user && user?.checkIn
-                ? "c578a3de6acc38bc5321d74cb4e9afbe"
-                : "83775104bed7ed7c6c390cc3bca425c7"
+                ? "2149b118b3e2d1bf9276b2144e6ce0bd"
+                : "eebdae35ceec271da632fe6e43e58e7f"
             )
           }
           className="w-full mt-4 bg-[#002B54] text-white py-2 rounded-lg"
