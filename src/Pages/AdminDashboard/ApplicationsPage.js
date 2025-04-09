@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import dayjs from "dayjs";
 import { toast } from "react-toastify";
 import { Link, useNavigate } from "react-router-dom";
 
 const ApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(dayjs());
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const navigate = useNavigate();
   const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -16,39 +18,41 @@ const ApplicationsPage = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const response = await axios.get(
-          "https://attendance-app-server-blue.vercel.app/api/leave-requests"
-        );
-        if (storedUser?.group && !storedUser?.zone) {
-          setApplications(
-            response.data.filter((data) => storedUser.group === data.group) ||
-              []
-          );
-        } else if (storedUser?.group && storedUser?.zone) {
-          setApplications(
-            response.data.filter(
-              (data) =>
-                storedUser.group === data.group && storedUser.zone === data.zone
-            ) || []
-          );
-        } else {
-          setApplications(response.data || []);
-        }
-      } catch (error) {
-        console.error("Error fetching leave applications:", error);
-        toast.error(
-          "Failed to load leave applications. Please try again later."
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchApplications = async (year, month) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(
+        `https://attendance-app-server-blue.vercel.app/api/leave-requests?year=${year}&month=${month}`
+      );
 
-    fetchApplications();
-  }, []);
+      if (storedUser?.group && !storedUser?.zone) {
+        setApplications(
+          response.data.filter((data) => storedUser.group === data.group) || []
+        );
+      } else if (storedUser?.group && storedUser?.zone) {
+        setApplications(
+          response.data.filter(
+            (data) =>
+              storedUser.group === data.group &&
+              storedUser.zone === data.zone
+          ) || []
+        );
+      } else {
+        setApplications(response.data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching leave applications:", error);
+      toast.error("Failed to load leave applications. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const year = selectedMonth.year();
+    const month = selectedMonth.month() + 1; // dayjs month is 0-based
+    fetchApplications(year, month);
+  }, [selectedMonth]);
 
   const handleStatusChange = async (id, newStatus) => {
     try {
@@ -146,7 +150,15 @@ const ApplicationsPage = () => {
           {isDrawerOpen ? "Close Menu" : "Open Menu"}
         </button>
 
-        <h1 className="text-2xl font-bold mb-6">Leave Applications</h1>
+        <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <h1 className="text-2xl font-bold">Leave Applications</h1>
+          <input
+            type="month"
+            value={selectedMonth.format("YYYY-MM")}
+            onChange={(e) => setSelectedMonth(dayjs(e.target.value))}
+            className="border p-2 rounded"
+          />
+        </div>
 
         {loading ? (
           <div className="text-center">
@@ -180,12 +192,10 @@ const ApplicationsPage = () => {
                     <td className="p-3">{application.userName}</td>
                     <td className="p-3">{application.phoneNumber}</td>
                     <td className="p-3">
-                      {new Date(
-                        application.leaveStartDate
-                      ).toLocaleDateString()}
+                      {dayjs(application.leaveStartDate).format("YYYY-MM-DD")}
                     </td>
                     <td className="p-3">
-                      {new Date(application.leaveEndDate).toLocaleDateString()}
+                      {dayjs(application.leaveEndDate).format("YYYY-MM-DD")}
                     </td>
                     <td className="p-3">{application.leaveReason}</td>
                     <td className="p-3">
@@ -208,7 +218,7 @@ const ApplicationsPage = () => {
                       </select>
                     </td>
                     <td className="p-3">
-                      {new Date(application.createdAt).toLocaleDateString()}
+                      {dayjs(application.createdAt).format("YYYY-MM-DD")}
                     </td>
                     <td className="p-3 flex space-x-2">
                       <button
@@ -217,12 +227,6 @@ const ApplicationsPage = () => {
                       >
                         Delete
                       </button>
-                      {/* <button
-                        onClick={() => toast.info("Edit functionality is not implemented")}
-                        className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-                      >
-                        Edit
-                      </button> */}
                     </td>
                   </tr>
                 ))}
