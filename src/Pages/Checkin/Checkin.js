@@ -117,6 +117,47 @@ const CheckInPage = () => {
     startCamera();
   }, []);
 
+  // const handleCapture = async (key) => {
+  //   const canvas = canvasRef.current;
+  //   const context = canvas.getContext("2d");
+  //   const video = videoRef.current;
+
+  //   canvas.width = video.videoWidth;
+  //   canvas.height = video.videoHeight;
+  //   context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  //   canvas.toBlob(async (blob) => {
+  //     const formData = new FormData();
+  //     formData.append("image", blob, "capture.png");
+  //     setImgLoading(true);
+  //     let previewUrl = null;
+  //     // Automatically show preview if image upload takes more than 8 seconds
+  //     const timeout = setTimeout(() => {
+  //       previewUrl = URL.createObjectURL(blob); // Generate a preview URL
+  //       setPreview(previewUrl); // Set preview image
+  //       setCaptured(true);
+  //       setShowPreview(true);
+  //       setImgLoading(false);
+  //       toast.success("Upload successful!");
+  //     }, 15000);
+
+  //     try {
+  //       const response = await axios.post(
+  //         `https://api.imgbb.com/1/upload?expiration=172800&key=${key}`,
+  //         formData
+  //       );
+  //       const imageUrl = response.data.data.url;
+  //       setImage(imageUrl);
+  //       setCaptured(true);
+  //       !previewUrl && toast.success("Image uploaded successfully!");
+  //       clearTimeout(timeout); // Clear timeout if upload completes early
+  //     } catch (error) {
+  //       !previewUrl && toast.error("Failed to upload image.");
+  //     } finally {
+  //       setImgLoading(false);
+  //     }
+  //   }, "image/png");
+  // };
   const handleCapture = async (key) => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
@@ -126,11 +167,41 @@ const CheckInPage = () => {
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-    canvas.toBlob(async (blob) => {
+    // Resize only if the image is too large
+    const maxWidth = 240; // Set max width
+    const maxHeight = 320; // Set max height
+    let width = canvas.width;
+    let height = canvas.height;
+
+    // Resize if the image is too large
+    if (width > maxWidth || height > maxHeight) {
+      const aspectRatio = width / height;
+      if (width > height) {
+        width = maxWidth;
+        height = Math.round(width / aspectRatio);
+      } else {
+        height = maxHeight;
+        width = Math.round(height * aspectRatio);
+      }
+    }
+
+    // Create a new canvas for resizing
+    const resizedCanvas = document.createElement("canvas");
+    const resizedContext = resizedCanvas.getContext("2d");
+    resizedCanvas.width = width;
+    resizedCanvas.height = height;
+    resizedContext.drawImage(canvas, 0, 0, width, height);
+
+    // Convert resized image to Blob
+    resizedCanvas.toBlob(async (blob) => {
       const formData = new FormData();
-      formData.append("image", blob, "capture.png");
+      formData.append("file", blob, "capture.png");
+      formData.append("upload_preset", "LuvitBD"); // Replace with your Cloudinary upload preset
+      formData.append("expires", 172800); // Set expiration time (in seconds)
+
       setImgLoading(true);
       let previewUrl = null;
+
       // Automatically show preview if image upload takes more than 8 seconds
       const timeout = setTimeout(() => {
         previewUrl = URL.createObjectURL(blob); // Generate a preview URL
@@ -139,14 +210,14 @@ const CheckInPage = () => {
         setShowPreview(true);
         setImgLoading(false);
         toast.success("Upload successful!");
-      }, 15000);
+      }, 10000);
 
       try {
         const response = await axios.post(
-          `https://api.imgbb.com/1/upload?expiration=172800&key=${key}`,
+          `https://api.cloudinary.com/v1_1/dzjx1fqaq/image/upload`, // Replace with your Cloudinary cloud name
           formData
         );
-        const imageUrl = response.data.data.url;
+        const imageUrl = response.data.secure_url; // Cloudinary returns image URL under 'secure_url'
         setImage(imageUrl);
         setCaptured(true);
         !previewUrl && toast.success("Image uploaded successfully!");
@@ -258,12 +329,10 @@ const CheckInPage = () => {
   return (
     <div className="p-6 py-10 pb-16 mb-10">
       <h2 className="text-2xl font-semibold text-center mb-4">Attendance</h2>
-      <div className="mb-6">
+      <label className="block text-lg font-medium mb-2">Capture Image:</label>
+      <div className="mb-6 flex flex-col items-center">
         {!captured && (
           <>
-            <label className="block text-lg font-medium mb-2">
-              Capture Image:
-            </label>
             <video
               ref={videoRef}
               autoPlay
